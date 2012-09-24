@@ -1,0 +1,108 @@
+#!/bin/bash
+
+# @copyright Dmitry Ponomarev <demdxx@gmail.com>
+# @year 2012
+# @license MIT
+
+compiler="java -jar `pwd`/yuicompressor-2.4.7.jar --charset utf-8"
+
+# Display help and exit
+help () {
+    echo 'JS/CSS compiler v 0.0.1 @ 2012'
+    echo '=============================='
+    echo ''
+    echo 'jscsscc $file [$outfile] - obfuscate single file'
+    echo 'jscsscc -l $file [$outfile] - obfuscate list of files'
+    echo 'jscsscc -L $file [$outputdir]'
+    echo '        Processing configuration'
+    echo '        file describing the input and'
+    echo '        output parameters.'
+    exit 1
+}
+
+if ([ $1  = '-l' ] && [ $1  = '-L' ] && [ ! -f $2 ]) \
+|| ([ $1 != '-l' ] && [ $1 != '-L' ] && [ ! -f $1 ])
+    then help
+fi
+
+# Clear file if exists
+clear_file () {
+    if [ $# = 1 ] && [ -f $1 ]
+        then echo '' > $1
+    fi
+}
+
+# Obfuscate css or js code
+obfuscate () {
+    if [ $# = 1 ]
+    then
+        echo `$compiler $1`
+    else
+        $compiler $1 -o $2
+    fi
+}
+
+# Obfuscate by list of files
+# <file.ls>
+# ./filename1
+# ./filename2
+# ...
+# ./filenameN
+l_obfuscate () {
+    clear_file $2
+    dir=`dirname $1`
+    for l in `cat $1`
+    do
+        if [ $# = 2 ]
+            then obfuscate "$dir/$l" >> $2
+        else
+            obfuscate "$dir/$l"
+        fi
+    done
+}
+
+# Obfuscate structured list
+# <file.ls>
+# output.file
+# ./filename1
+# ./filename2
+# ...
+# ./filenameN
+# \n
+# --//--
+#
+L_obfuscate () {
+    dir=`dirname $1`
+    odir=$dir
+    of=''
+    
+    if [ ! -z $2 ]
+        then odir=$2
+    fi
+    
+    while read l
+    do
+        s=`echo $l | sed 's/[ ]*$//g' | sed 's/^[ ]*//g'`
+        char=`echo $s | cut -c1-1`
+        if [ -z $char ] || [ $char != '#' ] # This is Comment
+        then
+            if [ -z $s ]
+                then of=''
+            elif [ -z $of ]
+            then
+                of="$odir/$s"
+                clear_file $of
+            else 
+                obfuscate "$dir/$s" >> $of
+            fi
+        fi
+    done < $1
+}
+
+if [ $1 = '-l' ]
+    then l_obfuscate $2 $3
+elif [ $1 = '-L' ]
+    then L_obfuscate $2 $3
+else
+    obfuscate $1 $2
+fi
