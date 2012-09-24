@@ -1,0 +1,4 @@
+jscsscc
+=======
+
+JS/CSS obfuscator
