@@ -39,7 +39,6 @@ Make file: make
 ```sh
 #!/bin/sh
 
-jscsscc 
 target_dir="`pwd`/../www/resources/"
 work_dir=`pwd`
 
