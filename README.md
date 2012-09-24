@@ -1,10 +1,10 @@
 jscsscc
 =======
 
- JS/CSS obfuscator.
- Copyright: Dmitry Ponomarev <demdxx@gmail.com> 2012
- Version: 0.0.1
- License: MIT
+    JS/CSS obfuscator.
+    Copyright: Dmitry Ponomarev <demdxx@gmail.com> 2012
+    Version: 0.0.1
+    License: MIT
 
 Example
 =======
